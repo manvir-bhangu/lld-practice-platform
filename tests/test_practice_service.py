@@ -260,3 +260,16 @@ def test_history_newest_first_and_validates_problem():
     assert len(service.history()) == 3
     with pytest.raises(NotFound):
         service.history("nope")
+def test_insights_after_two_evaluated_attempts():
+    service, _ = build_service(ScriptedLLM(llm_ok(), llm_ok()))
+    for _ in range(2):
+        service.evaluate(submitted_attempt(service).id)
+    insights = service.insights("parking-lot")
+    assert insights.attempts_analyzed == 2
+    assert len(insights.trends) == 6
+
+
+def test_insights_unknown_problem():
+    service, _ = build_service(ScriptedLLM())
+    with pytest.raises(NotFound):
+        service.insights("nope")
