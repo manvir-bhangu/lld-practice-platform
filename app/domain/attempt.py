@@ -32,7 +32,8 @@ class Attempt:
     failure_reason: str | None = None
     created_at: datetime = field(default_factory=_now)
     submitted_at: datetime | None = None
-
+    submitted_at: datetime | None = None
+    version: int = 0
     def _move_to(self, new_status: AttemptStatus) -> None:
         if new_status not in _ALLOWED[self.status]:
             raise InvalidStateTransition(
@@ -54,6 +55,7 @@ class Attempt:
     def start_evaluation(self) -> None:
         self._move_to(S.EVALUATING)
         self.failure_reason = None
+        self.evaluation_started_at = _now()
 
     def complete(self, evaluations: list[Evaluation]) -> None:
         if not evaluations:
